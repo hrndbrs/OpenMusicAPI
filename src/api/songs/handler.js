@@ -56,5 +56,15 @@ module.exports = class SongsRouteHandler {
     return res
   }
 
-  deleteSongByIdHandler = async () => {}
+  deleteSongByIdHandler = async (req, h) => {
+    const { id } = req.params
+    await this._service.deleteSongById(id)
+
+    const res = h.response({
+      status: 'succcess',
+      message: `song id ${id} has been deleted`
+    })
+    res.code(200)
+    return res
+  }
 }

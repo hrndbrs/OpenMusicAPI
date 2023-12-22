@@ -44,5 +44,14 @@ module.exports = class SongService extends Service {
     return rows[0]
   }
 
-  deleteSongById = async () => {}
+  deleteSongById = async (id) => {
+    const { rows } = await this.pool.query(
+      'DELETE FROM songs WHERE id=$1 RETURNING id',
+      [id]
+    )
+
+    if (rows.length === 0) throw new ClientError('No song has been updated', ERROR.BAD_REQUEST)
+
+    return rows[0]
+  }
 }
