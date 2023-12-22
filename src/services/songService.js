@@ -50,7 +50,7 @@ module.exports = class SongService extends Service {
       [id]
     )
 
-    if (rows.length === 0) throw new ClientError('No song has been updated', ERROR.BAD_REQUEST)
+    if (rows.length === 0) throw new ClientError('No song has been deleted', ERROR.BAD_REQUEST)
 
     return rows[0]
   }

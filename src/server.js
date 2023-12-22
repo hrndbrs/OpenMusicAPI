@@ -6,6 +6,7 @@ const songs = require('./api/songs')
 const AlbumService = require('./services/albumService')
 const SongService = require('./services/songService')
 const validator = require('./validator')
+const { ClientError } = require('./lib/error')
 
 const init = async () => {
   const albumService = new AlbumService()
@@ -36,6 +37,33 @@ const init = async () => {
       }
     }
   ])
+
+  server.ext('onPreResponse', (req, h) => {
+    const { response } = req
+
+    if (response instanceof Error) {
+      let statusCode = 500
+      const options = {
+        status: 'error',
+        message: 'Internal server error'
+      }
+
+      if (response instanceof ClientError) {
+        options.status = 'fail'
+        options.message = response.message
+        statusCode = response.status
+      }
+
+      if (!response.isServer) {
+        return h.continue
+      }
+
+      const res = h.response(options)
+      res.code(statusCode)
+      return res
+    }
+    return h.continue
+  })
 
   await server.start()
   console.log('Running on', server.info.uri)

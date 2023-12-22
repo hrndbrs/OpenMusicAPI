@@ -4,7 +4,7 @@ const ERROR = {
 }
 
 class ClientError extends Error {
-  constructor (message, name = 'Internal Server Error') {
+  constructor (message, name) {
     super(message)
     this.name = name
     this.status = ClientError.getStatusCode(name)
@@ -16,8 +16,6 @@ class ClientError extends Error {
         return 404
       case ERROR.BAD_REQUEST:
         return 400
-      default:
-        return 500
     }
   }
 }
