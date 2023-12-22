@@ -4,7 +4,20 @@ module.exports = class SongsRouteHandler {
     this._validator = validator
   }
 
-  postSongHandler = async () => {}
+  postSongHandler = async (req, h) => {
+    this._validator.validateSongPayload(req.payload)
+    const { title, year, genre, performer, duration, albumId } = req.payload
+    const payload = { title, year, genre, performer, duration, albumId }
+    const songId = await this._service.addNewSong(payload)
+
+    const res = h.response({
+      status: 'success',
+      data: { songId }
+    })
+    res.code(201)
+    return res
+  }
+
   getSongsHandler = async () => {}
   getSongByIdHandler = async () => {}
   putSongByIdHandler = async () => {}
