@@ -29,7 +29,18 @@ module.exports = class SongsRouteHandler {
     return res
   }
 
-  getSongByIdHandler = async () => {}
+  getSongByIdHandler = async (req, h) => {
+    const { id } = req.params
+    const song = await this._service.getSongById(id)
+
+    const res = h.response({
+      status: 'success',
+      data: { song }
+    })
+    res.code(200)
+    return res
+  }
+
   putSongByIdHandler = async () => {}
   deleteSongByIdHandler = async () => {}
 }

@@ -1,3 +1,4 @@
+const { ClientError, ERROR } = require('../lib/error')
 const Service = require('./service')
 const { nanoid } = require('nanoid')
 
@@ -21,7 +22,17 @@ module.exports = class SongService extends Service {
     return rows
   }
 
-  getSongById = async () => {}
+  getSongById = async (id) => {
+    const { rows } = await this.pool.query(
+      'SELECT * FROM songs WHERE id=$1',
+      [id]
+    )
+
+    if (rows.length === 0) throw new ClientError('Invalid song id', ERROR.BAD_REQUEST)
+
+    return rows[0]
+  }
+
   editSongById = async () => {}
   deleteSongById = async () => {}
 }
