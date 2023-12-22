@@ -30,6 +30,20 @@ module.exports = class AlbumsHandler {
     return res
   }
 
-  putAlbumByIdHandler = async () => {}
+  putAlbumByIdHandler = async (req, h) => {
+    this._validator.validateAlbumPayload(req.payload)
+    const { name, year } = req.payload
+    const { id } = req.params
+    const payload = { id, name, year }
+    await this._service.editAlbumById(payload)
+
+    const res = h.response({
+      status: 'success',
+      message: `album id ${id} has been updated`
+    })
+    res.code(200)
+    return res
+  }
+
   deleteAlbumByIdHandler = async () => {}
 }

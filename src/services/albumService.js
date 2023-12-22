@@ -47,4 +47,15 @@ module.exports = class AlbumService {
 
     return rows[0]
   }
+
+  editAlbumById = async ({ id, name, year }) => {
+    const { rows } = await this.#pool.query(
+      'UPDATE albums SET name=$1, year=$2 WHERE id=$3 RETURNING *',
+      [name, year, id]
+    )
+
+    if (rows.length === 0) throw new Error()
+
+    return rows[0]
+  }
 }
