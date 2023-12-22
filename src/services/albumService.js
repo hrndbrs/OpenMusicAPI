@@ -58,4 +58,15 @@ module.exports = class AlbumService {
 
     return rows[0]
   }
+
+  deleteAlbumById = async (id) => {
+    const { rows } = await this.#pool.query(
+      'DELETE FROM albums WHERE id=$1 RETURNING id',
+      [id]
+    )
+
+    if (rows.length === 0) throw new Error()
+
+    return rows[0]
+  }
 }

@@ -45,5 +45,15 @@ module.exports = class AlbumsHandler {
     return res
   }
 
-  deleteAlbumByIdHandler = async () => {}
+  deleteAlbumByIdHandler = async (req, h) => {
+    const { id } = req.params
+    await this._service.deleteAlbumById(id)
+
+    const res = h.response({
+      status: 'success',
+      message: `album id ${id} has been deleted`
+    })
+    res.code(200)
+    return res
+  }
 }
