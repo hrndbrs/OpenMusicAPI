@@ -18,8 +18,12 @@ module.exports = class SongsRouteHandler {
     return res
   }
 
-  getSongsHandler = async (_req, h) => {
-    const songs = await this._service.getAllSongs()
+  getSongsHandler = async (req, h) => {
+    const { title, performer } = req.query
+    const searchParams = {}
+    if (title) searchParams.title = `${title}%`
+    if (performer) searchParams.performer = `${performer}%`
+    const songs = await this._service.getAllSongs(searchParams)
 
     const res = h.response({
       status: 'success',
@@ -49,7 +53,7 @@ module.exports = class SongsRouteHandler {
     await this._service.editSongById(payload)
 
     const res = h.response({
-      status: 'succcess',
+      status: 'success',
       message: `song id ${id} has been updated`
     })
     res.code(200)
@@ -61,7 +65,7 @@ module.exports = class SongsRouteHandler {
     await this._service.deleteSongById(id)
 
     const res = h.response({
-      status: 'succcess',
+      status: 'success',
       message: `song id ${id} has been deleted`
     })
     res.code(200)

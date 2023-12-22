@@ -16,10 +16,18 @@ module.exports = class SongService extends Service {
     return rows[0].id
   }
 
-  getAllSongs = async () => {
-    const { rows } = await this.pool.query(
-      'SELECT id, title, performer FROM songs'
-    )
+  getAllSongs = async (searchParams) => {
+    const params = ['SELECT id, title, performer FROM songs']
+    if (JSON.stringify(searchParams) !== '{}') {
+      params[1] = []
+      const conditions = Object.keys(searchParams).map((q, i) => {
+        params[1].push(searchParams[q])
+        return `${q} iLike $${i + 1}`
+      }).join(' AND ')
+      params[0] = params[0] + ` WHERE ${conditions}`
+    }
+
+    const { rows } = await this.pool.query(...params)
 
     return rows
   }
@@ -30,7 +38,7 @@ module.exports = class SongService extends Service {
       [id]
     )
 
-    if (rows.length === 0) throw new ClientError('Invalid song id', ERROR.BAD_REQUEST)
+    if (rows.length === 0) throw new ClientError('Invalid song id', ERROR.NOT_FOUND)
 
     return rows[0]
   }
@@ -44,7 +52,7 @@ module.exports = class SongService extends Service {
       [title, year, genre, performer, duration, albumId, id]
     )
 
-    if (rows.length === 0) throw new ClientError('No song has been updated', ERROR.BAD_REQUEST)
+    if (rows.length === 0) throw new ClientError('No song has been updated', ERROR.NOT_FOUND)
 
     return rows[0]
   }
@@ -57,7 +65,7 @@ module.exports = class SongService extends Service {
       [id]
     )
 
-    if (rows.length === 0) throw new ClientError('No song has been deleted', ERROR.BAD_REQUEST)
+    if (rows.length === 0) throw new ClientError('No song has been deleted', ERROR.NOT_FOUND)
 
     return rows[0]
   }
