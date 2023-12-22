@@ -1,3 +1,4 @@
+const { ClientError, ERROR } = require('../lib/error')
 const { nanoid } = require('nanoid')
 const { Pool } = require('pg')
 
@@ -32,8 +33,6 @@ module.exports = class AlbumService {
       [id, name, year]
     )
 
-    if (rows.length === 0) throw new Error()
-
     return rows[0].id
   }
 
@@ -43,7 +42,7 @@ module.exports = class AlbumService {
       [id]
     )
 
-    if (rows.length === 0) throw new Error()
+    if (rows.length === 0) throw new ClientError(`Album id ${id} is not found`, ERROR.NOT_FOUND)
 
     return rows[0]
   }
@@ -54,7 +53,7 @@ module.exports = class AlbumService {
       [name, year, id]
     )
 
-    if (rows.length === 0) throw new Error()
+    if (rows.length === 0) throw new ClientError(`Album id ${id} is not found`, ERROR.NOT_FOUND)
 
     return rows[0]
   }
@@ -65,7 +64,7 @@ module.exports = class AlbumService {
       [id]
     )
 
-    if (rows.length === 0) throw new Error()
+    if (rows.length === 0) throw new ClientError(`Album id ${id} is not found`, ERROR.NOT_FOUND)
 
     return rows[0]
   }

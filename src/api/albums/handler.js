@@ -1,4 +1,4 @@
-module.exports = class AlbumsHandler {
+module.exports = class AlbumsRouteHandler {
   constructor (service, validator) {
     this._service = service
     this._validator = validator
