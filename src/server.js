@@ -55,7 +55,9 @@ const init = async () => {
       }
 
       if (!response.isServer) {
-        return h.continue
+        options.status = 'fail'
+        options.message = response.message
+        statusCode = response.output.statusCode
       }
 
       const res = h.response(options)
