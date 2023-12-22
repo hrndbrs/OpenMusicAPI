@@ -13,7 +13,14 @@ module.exports = class SongService extends Service {
     return rows[0].id
   }
 
-  getAllSongs = async () => {}
+  getAllSongs = async () => {
+    const { rows } = await this.pool.query(
+      'SELECT id, title, performer FROM songs'
+    )
+
+    return rows
+  }
+
   getSongById = async () => {}
   editSongById = async () => {}
   deleteSongById = async () => {}
