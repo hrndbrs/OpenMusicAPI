@@ -33,6 +33,16 @@ module.exports = class SongService extends Service {
     return rows[0]
   }
 
-  editSongById = async () => {}
+  editSongById = async ({ id, title, year, genre, performer, duration, albumId }) => {
+    const { rows } = await this.pool.query(
+      'UPDATE songs SET title=$1, year=$2, genre=$3, performer=$4, duration=$5, "albumId"=$6 WHERE id=$7 RETURNING id',
+      [title, year, genre, performer, duration, albumId, id]
+    )
+
+    if (rows.length === 0) throw new ClientError('No song has been updated', ERROR.BAD_REQUEST)
+
+    return rows[0]
+  }
+
   deleteSongById = async () => {}
 }

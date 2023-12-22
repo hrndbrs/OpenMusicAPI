@@ -41,6 +41,20 @@ module.exports = class SongsRouteHandler {
     return res
   }
 
-  putSongByIdHandler = async () => {}
+  putSongByIdHandler = async (req, h) => {
+    this._validator.validateSongPayload(req.payload)
+    const { id } = req.params
+    const { title, year, genre, performer, duration, albumId } = req.payload
+    const payload = { id, title, year, genre, performer, duration, albumId }
+    await this._service.editSongById(payload)
+
+    const res = h.response({
+      status: 'succcess',
+      message: `song id ${id} has been updated`
+    })
+    res.code(200)
+    return res
+  }
+
   deleteSongByIdHandler = async () => {}
 }

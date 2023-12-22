@@ -7,7 +7,7 @@ class ClientError extends Error {
   constructor (message, name = 'Internal Server Error') {
     super(message)
     this.name = name
-    this.status = this.getStatusCode(name)
+    this.status = ClientError.getStatusCode(name)
   }
 
   static getStatusCode (name) {
