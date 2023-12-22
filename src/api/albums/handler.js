@@ -11,14 +11,25 @@ module.exports = class AlbumsHandler {
     const albumId = await this._service.addNewAlbum(payload)
 
     const res = h.response({
-      message: 'success',
+      status: 'success',
       data: { albumId }
     })
     res.code(201)
     return res
   }
 
-  getAlbumByIdHandler = async () => {}
+  getAlbumByIdHandler = async (req, h) => {
+    const { id } = req.params
+    const album = await this._service.getAlbumById(id)
+
+    const res = h.response({
+      status: 'success',
+      data: { album }
+    })
+    res.code(200)
+    return res
+  }
+
   putAlbumByIdHandler = async () => {}
   deleteAlbumByIdHandler = async () => {}
 }
