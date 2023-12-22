@@ -1,8 +1,11 @@
+const { nanoid } = require('nanoid')
 const { Pool } = require('pg')
 
 module.exports = class AlbumService {
+  #pool
+
   constructor () {
-    this._pool = this.connectToDatabase()
+    this.#pool = this.connectToDatabase()
   }
 
   connectToDatabase () {
@@ -19,5 +22,16 @@ module.exports = class AlbumService {
     const pool = new Pool(options)
 
     return pool
+  }
+
+  addNewAlbum = async ({ name, year }) => {
+    const id = 'album-' + nanoid(16)
+
+    const { rows: [{ id: newAlbumId }] } = await this.#pool.query(
+      'INSERT INTO albums (id, name, year) VALUES ($1, $2, $3) RETURNING id',
+      [id, name, year]
+    )
+
+    return newAlbumId
   }
 }

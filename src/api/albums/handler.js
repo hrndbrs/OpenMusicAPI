@@ -4,7 +4,20 @@ module.exports = class AlbumsHandler {
     this._validator = validator
   }
 
-  postAlbumHandler = async () => {}
+  postAlbumHandler = async (req, h) => {
+    this._validator.validateAlbumPayload(req.payload)
+    const { name, year } = req.payload
+    const payload = { name, year }
+    const albumId = await this._service.addNewAlbum(payload)
+
+    const res = h.response({
+      message: 'success',
+      data: { albumId }
+    })
+    res.code(201)
+    return res
+  }
+
   getAlbumByIdHandler = async () => {}
   putAlbumByIdHandler = async () => {}
   deleteAlbumByIdHandler = async () => {}
