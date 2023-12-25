@@ -17,17 +17,22 @@ module.exports = class SongService extends Service {
   }
 
   getAllSongs = async (searchParams) => {
-    const params = ['SELECT id, title, performer FROM songs']
+    const query = { text: 'SELECT id, title, performer FROM songs' }
+
     if (JSON.stringify(searchParams) !== '{}') {
-      params[1] = []
-      const conditions = Object.keys(searchParams).map((q, i) => {
-        params[1].push(searchParams[q])
-        return `${q} iLike $${i + 1}`
-      }).join(' AND ')
-      params[0] = params[0] + ` WHERE ${conditions}`
+      query.values = []
+
+      const conditions = Object
+        .keys(searchParams)
+        .map((q, i) => {
+          query.values.push(searchParams[q])
+          return `${q} ILIKE $${i + 1}`
+        }).join(' AND ')
+
+      query.text = query.text + ` WHERE ${conditions}`
     }
 
-    const { rows } = await this.pool.query(...params)
+    const { rows } = await this.pool.query(query)
 
     return rows
   }
