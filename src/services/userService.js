@@ -5,7 +5,7 @@ const { nanoid } = require('nanoid')
 
 module.exports = class UserService extends Service {
   createNewUser = async ({ username, password, fullname }) => {
-    const id = nanoid(16)
+    const id = 'user-' + nanoid(16)
     const hashedPassword = hashPassword(password)
 
     try {
