@@ -45,6 +45,31 @@ module.exports = class PlaylistService extends Service {
     }
   }
 
+  getPlaylistByid = async (id) => {
+    const { rows } = await this.pool.query(
+      `SELECT p.id, p.name, u.username,
+      CASE
+      WHEN count(ps.id) > 0
+        THEN jsonb_agg(
+          jsonb_build_object(
+            'id', s.id,
+            'title', s.title,
+            'performer', s.performer
+        ))
+        ELSE '[]'::jsonb
+      END AS songs
+      FROM playlists p
+      JOIN "playlist-song" ps ON ps."playlistId"=p.id
+      JOIN songs s ON ps."songId" = s.id
+      JOIN users u ON u.id=p.owner
+      WHERE p.id=$1
+      GROUP BY p.id, u.username`,
+      [id]
+    )
+
+    return rows[0]
+  }
+
   verifyOwner = async ({ owner, playlistId }) => {
     const { rows } = await this.pool.query(
       `SELECT name from playlists
