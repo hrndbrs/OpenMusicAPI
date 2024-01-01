@@ -13,8 +13,6 @@ module.exports = class PlaylistService extends Service {
       [id, name, owner]
     )
 
-    if (rows.length === 0) throw new Error()
-
     return rows[0].id
   }
 
@@ -49,25 +47,38 @@ module.exports = class PlaylistService extends Service {
     const { rows } = await this.pool.query(
       `SELECT p.id, p.name, u.username,
       CASE
-      WHEN count(ps.id) > 0
+      WHEN count(s.id) > 0
         THEN jsonb_agg(
           jsonb_build_object(
             'id', s.id,
             'title', s.title,
             'performer', s.performer
-        ))
+          ))
         ELSE '[]'::jsonb
       END AS songs
       FROM playlists p
-      JOIN "playlist-song" ps ON ps."playlistId"=p.id
-      JOIN songs s ON ps."songId" = s.id
-      JOIN users u ON u.id=p.owner
+      LEFT JOIN "playlist-song" ps ON ps."playlistId"=p.id
+      LEFT JOIN songs s ON ps."songId" = s.id
+      LEFT JOIN users u ON u.id=p.owner
       WHERE p.id=$1
       GROUP BY p.id, u.username`,
       [id]
     )
 
     return rows[0]
+  }
+
+  removeSongFromPlaylist = async ({ playlistId, songId }) => {
+    const { rows } = await this.pool.query(
+      `DELETE FROM "playlist-song"
+      WHERE "playlistId"=$1 AND "songId"=$2
+      RETURNING id`,
+      [playlistId, songId]
+    )
+
+    if (rows.length === 0) throw new ClientError('song is not found in the playlist', ERROR.NOT_FOUND)
+
+    return rows[0].id
   }
 
   verifyOwner = async ({ owner, playlistId }) => {
