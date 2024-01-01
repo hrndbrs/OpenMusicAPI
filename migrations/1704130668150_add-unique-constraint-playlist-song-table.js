@@ -5,5 +5,5 @@ exports.up = pgm => {
 }
 
 exports.down = pgm => {
-  pgm.dropConstraint('playlist-song', 'unique-constraint')
+  pgm.dropConstraint('playlist-song', 'unique_combination')
 }

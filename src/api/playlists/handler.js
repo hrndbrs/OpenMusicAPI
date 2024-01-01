@@ -34,7 +34,23 @@ module.exports = class PlaylistsRouteHandler {
     return res
   }
 
-  deletePlaylistHandler = () => {}
+  deletePlaylistHandler = async (req, h) => {
+    const { id: owner } = req.auth.credentials
+    const { id: playlistId } = req.params
+
+    const payload = { owner, playlistId }
+
+    await this._playlistService.verifyAccess(payload)
+    await this._playlistService.deletePlaylist(payload)
+
+    const res = h.response({
+      status: 'success',
+      message: 'successfully deleted playlist'
+    })
+    res.code(200)
+    return res
+  }
+
   postPlaylistSongHandler = async (req, h) => {
     this._validator.validatePlaylistSong(req.payload)
     const { id: owner } = req.auth.credentials

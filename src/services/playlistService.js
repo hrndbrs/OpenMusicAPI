@@ -27,6 +27,19 @@ module.exports = class PlaylistService extends Service {
     return rows
   }
 
+  deletePlaylist = async ({ playlistId, owner }) => {
+    const { rows } = await this.pool.query(
+      `DELETE FROM playlists
+      WHERE id=$1 AND owner=$2
+      RETURNING id`,
+      [playlistId, owner]
+    )
+
+    if (rows.length === 0) throw new ClientError('playlist is not found', ERROR.NOT_FOUND)
+
+    return rows[0].id
+  }
+
   addSongToPlaylist = async ({ playlistId, songId }) => {
     try {
       const { rows } = await this.pool.query(
@@ -83,12 +96,15 @@ module.exports = class PlaylistService extends Service {
 
   verifyOwner = async ({ owner, playlistId }) => {
     const { rows } = await this.pool.query(
-      `SELECT name from playlists
-      WHERE owner=$1 AND id=$2`,
-      [owner, playlistId]
+      `SELECT owner from playlists
+      WHERE id=$1`,
+      [playlistId]
     )
 
-    if (rows.length === 0) throw new ClientError('unauthorized access', ERROR.FORBIDDEN)
+    console.log(rows)
+
+    if (rows.length === 0) throw new ClientError('playlist is not found', ERROR.NOT_FOUND)
+    else if (rows[0].owner !== owner) throw new ClientError('unauthorized access', ERROR.FORBIDDEN)
   }
 
   verifyAccess = async (payload) => {
