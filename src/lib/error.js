@@ -1,6 +1,7 @@
 const ERROR = {
   NOT_FOUND: 'NOT_FOUND',
-  BAD_REQUEST: 'BAD_REQUEST'
+  BAD_REQUEST: 'BAD_REQUEST',
+  UNAUTHORIZED: 'UNAUTHORIZED'
 }
 
 class ClientError extends Error {
@@ -16,6 +17,8 @@ class ClientError extends Error {
         return 404
       case ERROR.BAD_REQUEST:
         return 400
+      case ERROR.UNAUTHORIZED:
+        return 401
     }
   }
 }

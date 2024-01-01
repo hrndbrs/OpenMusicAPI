@@ -1,4 +1,4 @@
-const { hashPassword } = require('../../lib/bcrypt')
+// const { hashPassword } = require('../../lib/bcrypt')
 
 module.exports = class UsersRouteHandler {
   constructor (service, validator) {
@@ -8,8 +8,8 @@ module.exports = class UsersRouteHandler {
 
   postUserHandler = async (req, h) => {
     this._validator.validateNewUserPayload(req.payload)
-    const { username, password: inputPassword, fullname } = req.payload
-    const password = hashPassword(inputPassword)
+    const { username, password, fullname } = req.payload
+    // const password = hashPassword(inputPassword)
     const payload = { username, password, fullname }
 
     const userId = await this._service.createNewUser(payload)
