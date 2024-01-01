@@ -1,6 +1,7 @@
 module.exports = class PlaylistsRouteHandler {
-  constructor (service, validator) {
-    this._service = service
+  constructor (playlistService, songService, validator) {
+    this._playlistService = playlistService
+    this._songService = songService
     this._validator = validator
   }
 
@@ -11,7 +12,7 @@ module.exports = class PlaylistsRouteHandler {
 
     const payload = { name, owner }
 
-    const playlistId = await this._service.createPlaylist(payload)
+    const playlistId = await this._playlistService.createPlaylist(payload)
 
     const res = h.response({
       status: 'success',
@@ -21,9 +22,40 @@ module.exports = class PlaylistsRouteHandler {
     return res
   }
 
-  getPlaylistHandler = () => {}
+  getPlaylistsHandler = async (req, h) => {
+    const { id: owner } = req.auth.credentials
+    const playlists = await this._playlistService.getUserPlaylists(owner)
+
+    const res = h.response({
+      status: 'success',
+      data: { playlists }
+    })
+    res.code(200)
+    return res
+  }
+
   deletePlaylistHandler = () => {}
-  postPlaylistSongHandler = () => {}
+  postPlaylistSongHandler = async (req, h) => {
+    this._validator.validatePlaylistSong(req.payload)
+    const { id: owner } = req.auth.credentials
+    const { id: playlistId } = req.params
+    const { songId } = req.payload
+
+    await this._playlistService.verifyAccess({ owner, playlistId })
+    await this._songService.getSongById(songId)
+
+    const payload = { playlistId, songId }
+
+    await this._playlistService.addSongToPlaylist(payload)
+
+    const res = h.response({
+      status: 'success',
+      message: 'added song successfully'
+    })
+    res.code(201)
+    return res
+  }
+
   getPlaylistSongsHandler = () => {}
   deletePlaylistSongHandler = () => {}
 }

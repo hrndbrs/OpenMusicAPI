@@ -1,7 +1,8 @@
 const ERROR = {
   NOT_FOUND: 'NOT_FOUND',
   BAD_REQUEST: 'BAD_REQUEST',
-  UNAUTHORIZED: 'UNAUTHORIZED'
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN'
 }
 
 class ClientError extends Error {
@@ -13,12 +14,14 @@ class ClientError extends Error {
 
   static getStatusCode (name) {
     switch (name) {
-      case ERROR.NOT_FOUND:
-        return 404
       case ERROR.BAD_REQUEST:
         return 400
       case ERROR.UNAUTHORIZED:
         return 401
+      case ERROR.FORBIDDEN:
+        return 403
+      case ERROR.NOT_FOUND:
+        return 404
     }
   }
 }

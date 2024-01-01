@@ -12,7 +12,7 @@ const routes = (handler) => [
   {
     method: 'GET',
     path: '/playlists',
-    handler: handler.getPlaylistHandler,
+    handler: handler.getPlaylistsHandler,
     options: {
       auth: JWT_STRATEGY_NAME
     }
