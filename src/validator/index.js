@@ -3,6 +3,7 @@ const albumPayloadSchema = require('./albums/schema')
 const songPayloadSchema = require('./songs/schema')
 const { newUserPayloadSchema, authUserSchema } = require('./users/schema')
 const authPayloadSchema = require('./auth/schema')
+const { newPlaylistPayloadSchema, playlistSongPayloadSchema } = require('./playlists/schema')
 
 module.exports = {
   checkError (error) {
@@ -28,6 +29,14 @@ module.exports = {
   },
   validateRefreshToken (payload) {
     const { error } = authPayloadSchema.validate(payload)
+    this.checkError(error)
+  },
+  validateNewPlaylist (payload) {
+    const { error } = newPlaylistPayloadSchema.validate(payload)
+    this.checkError(error)
+  },
+  validatePlaylistSong (payload) {
+    const { error } = playlistSongPayloadSchema.validate(payload)
     this.checkError(error)
   }
 }

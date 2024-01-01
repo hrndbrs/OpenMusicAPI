@@ -6,17 +6,21 @@ const users = require('./api/users')
 const albums = require('./api/albums')
 const songs = require('./api/songs')
 const auth = require('./api/auth')
+const playlists = require('./api/playlists')
 const AlbumService = require('./services/albumService')
 const SongService = require('./services/songService')
 const UserService = require('./services/userService')
+const PlaylistService = require('./services/playlistService')
 const validator = require('./validator')
 const tokenManager = require('./lib/jwt')
 const { ClientError } = require('./lib/error')
+const { JWT_STRATEGY_NAME } = require('./lib/constants')
 
 const init = async () => {
   const albumService = new AlbumService()
   const songService = new SongService()
   const userService = new UserService()
+  const playlistService = new PlaylistService()
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -30,7 +34,7 @@ const init = async () => {
 
   await server.register(jwt)
 
-  server.auth.strategy('openMusicJwt', 'jwt', {
+  server.auth.strategy(JWT_STRATEGY_NAME, 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
       aud: false,
@@ -38,15 +42,12 @@ const init = async () => {
       sub: false,
       maxAgeSec: 1000 * 60
     },
-    validate: (artifacts) => {
-      console.log(artifacts, 36)
-      return {
-        isValid: true,
-        credentials: {
-          id: artifacts.decoded.payload.id
-        }
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id
       }
-    }
+    })
   })
 
   await server.register([
@@ -77,6 +78,13 @@ const init = async () => {
         service: userService,
         validator,
         tokenManager
+      }
+    },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistService,
+        validator
       }
     }
   ])
