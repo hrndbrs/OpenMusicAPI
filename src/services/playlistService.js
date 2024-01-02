@@ -3,6 +3,11 @@ const { ClientError, ERROR } = require('../lib/error')
 const { nanoid } = require('nanoid')
 
 module.exports = class PlaylistService extends Service {
+  constructor (collaborationService) {
+    super()
+    this._collaborationService = collaborationService
+  }
+
   createPlaylist = async ({ name, owner }) => {
     const id = 'playlist-' + nanoid(16)
 
@@ -20,7 +25,8 @@ module.exports = class PlaylistService extends Service {
     const { rows } = await this.pool.query(
       `SELECT p.id, p.name, u.username FROM playlists p
       JOIN users u ON p.owner=u.id
-      WHERE u.id=$1`,
+      LEFT JOIN collaborations c ON c."playlistId"=p.id
+      WHERE u.id=$1 OR c."userId"=$1`,
       [owner]
     )
 
@@ -101,13 +107,25 @@ module.exports = class PlaylistService extends Service {
       [playlistId]
     )
 
-    console.log(rows)
-
     if (rows.length === 0) throw new ClientError('playlist is not found', ERROR.NOT_FOUND)
     else if (rows[0].owner !== owner) throw new ClientError('unauthorized access', ERROR.FORBIDDEN)
   }
 
-  verifyAccess = async (payload) => {
-    await this.verifyOwner(payload)
+  verifyAccess = async (payload, method, path) => {
+    try {
+      await this.verifyOwner(payload)
+    } catch (err) {
+      if (
+        err.name === ERROR.NOT_FOUND ||
+        (method === 'delete' && (
+          path.startsWith('/collaborations') ||
+          !path.endsWith('/songs')
+        ))
+      ) throw err
+
+      const { owner: userId, playlistId } = payload
+
+      await this._collaborationService.verifyCollaborator(userId, playlistId)
+    }
   }
 }

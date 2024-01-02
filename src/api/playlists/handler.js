@@ -5,6 +5,18 @@ module.exports = class PlaylistsRouteHandler {
     this._validator = validator
   }
 
+  verifyAccess = async (req) => {
+    const { id: userId } = req.auth.credentials
+    const { id: playlistId } = req.params
+    const { method, path } = req
+
+    const payload = { owner: userId, playlistId }
+
+    await this._playlistService.verifyAccess(payload, method, path)
+
+    return { userId, playlistId }
+  }
+
   postPlaylistHandler = async (req, h) => {
     this._validator.validateNewPlaylist(req.payload)
     const { name } = req.payload
@@ -35,12 +47,10 @@ module.exports = class PlaylistsRouteHandler {
   }
 
   deletePlaylistHandler = async (req, h) => {
-    const { id: owner } = req.auth.credentials
-    const { id: playlistId } = req.params
+    const { userId: owner, playlistId } = await this.verifyAccess(req)
 
     const payload = { owner, playlistId }
 
-    await this._playlistService.verifyAccess(payload)
     await this._playlistService.deletePlaylist(payload)
 
     const res = h.response({
@@ -53,11 +63,9 @@ module.exports = class PlaylistsRouteHandler {
 
   postPlaylistSongHandler = async (req, h) => {
     this._validator.validatePlaylistSong(req.payload)
-    const { id: owner } = req.auth.credentials
-    const { id: playlistId } = req.params
+    const { playlistId } = await this.verifyAccess(req)
     const { songId } = req.payload
 
-    await this._playlistService.verifyAccess({ owner, playlistId })
     await this._songService.getSongById(songId)
 
     const payload = { playlistId, songId }
@@ -73,10 +81,8 @@ module.exports = class PlaylistsRouteHandler {
   }
 
   getPlaylistSongsHandler = async (req, h) => {
-    const { id: owner } = req.auth.credentials
-    const { id: playlistId } = req.params
+    const { playlistId } = await this.verifyAccess(req)
 
-    await this._playlistService.verifyAccess({ owner, playlistId })
     const playlist = await this._playlistService.getPlaylistByid(playlistId)
 
     const res = h.response({
@@ -89,11 +95,9 @@ module.exports = class PlaylistsRouteHandler {
 
   deletePlaylistSongHandler = async (req, h) => {
     this._validator.validatePlaylistSong(req.payload)
-    const { id: owner } = req.auth.credentials
-    const { id: playlistId } = req.params
-    const { songId } = req.payload
+    const { playlistId } = await this.verifyAccess(req)
 
-    await this._playlistService.verifyAccess({ owner, playlistId })
+    const { songId } = req.payload
 
     const payload = { playlistId, songId }
 

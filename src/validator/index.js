@@ -1,9 +1,16 @@
 const { ClientError, ERROR } = require('../lib/error')
 const albumPayloadSchema = require('./albums/schema')
 const songPayloadSchema = require('./songs/schema')
-const { newUserPayloadSchema, authUserSchema } = require('./users/schema')
+const {
+  newUserPayloadSchema,
+  authUserSchema
+} = require('./users/schema')
 const authPayloadSchema = require('./auth/schema')
-const { newPlaylistPayloadSchema, playlistSongPayloadSchema } = require('./playlists/schema')
+const {
+  newPlaylistPayloadSchema,
+  playlistSongPayloadSchema
+} = require('./playlists/schema')
+const collaborationPayloadSchema = require('./collaborations/schema')
 
 module.exports = {
   checkError (error) {
@@ -37,6 +44,10 @@ module.exports = {
   },
   validatePlaylistSong (payload) {
     const { error } = playlistSongPayloadSchema.validate(payload)
+    this.checkError(error)
+  },
+  validateCollaborationPayload (payload) {
+    const { error } = collaborationPayloadSchema.validate(payload)
     this.checkError(error)
   }
 }

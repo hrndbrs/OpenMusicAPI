@@ -2,16 +2,22 @@ require('dotenv').config()
 
 const Hapi = require('@hapi/hapi')
 const jwt = require('@hapi/jwt')
+
 const users = require('./api/users')
 const albums = require('./api/albums')
 const songs = require('./api/songs')
 const auth = require('./api/auth')
 const playlists = require('./api/playlists')
+const collaborations = require('./api/collaborations')
+
 const AlbumService = require('./services/albumService')
 const SongService = require('./services/songService')
 const UserService = require('./services/userService')
 const PlaylistService = require('./services/playlistService')
+const CollaborationService = require('./services/collaborationService')
+
 const validator = require('./validator')
+
 const tokenManager = require('./lib/jwt')
 const { ClientError } = require('./lib/error')
 const { JWT_STRATEGY_NAME } = require('./lib/constants')
@@ -20,7 +26,8 @@ const init = async () => {
   const albumService = new AlbumService()
   const songService = new SongService()
   const userService = new UserService()
-  const playlistService = new PlaylistService()
+  const collaborationService = new CollaborationService()
+  const playlistService = new PlaylistService(collaborationService)
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -85,6 +92,14 @@ const init = async () => {
       options: {
         playlistService,
         songService,
+        validator
+      }
+    },
+    {
+      plugin: collaborations,
+      options: {
+        playlistService,
+        collaborationService,
         validator
       }
     }
