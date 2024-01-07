@@ -46,13 +46,19 @@ module.exports = class PlaylistService extends Service {
     return rows[0].id
   }
 
-  addSongToPlaylist = async ({ playlistId, songId }) => {
+  addSongToPlaylist = async ({ playlistId, songId, userId }) => {
     try {
       const { rows } = await this.pool.query(
         `INSERT INTO "playlist-song" ("playlistId", "songId")
         VALUES ($1, $2)
         RETURNING id`,
         [playlistId, songId]
+      )
+
+      await this.pool.query(
+        `INSERT INTO activities ("userId", "playlistId", "songId", action)
+        VALUES ($1, $2, $3, 'add')`,
+        [userId, playlistId, songId]
       )
 
       return rows[0].id
@@ -87,7 +93,7 @@ module.exports = class PlaylistService extends Service {
     return rows[0]
   }
 
-  removeSongFromPlaylist = async ({ playlistId, songId }) => {
+  removeSongFromPlaylist = async ({ playlistId, songId, userId }) => {
     const { rows } = await this.pool.query(
       `DELETE FROM "playlist-song"
       WHERE "playlistId"=$1 AND "songId"=$2
@@ -97,7 +103,28 @@ module.exports = class PlaylistService extends Service {
 
     if (rows.length === 0) throw new ClientError('song is not found in the playlist', ERROR.NOT_FOUND)
 
+    await this.pool.query(
+      `INSERT INTO activities ("userId", "playlistId", "songId", action)
+      VALUES ($1, $2, $3, 'delete')`,
+      [userId, playlistId, songId]
+    )
+
     return rows[0].id
+  }
+
+  getPlaylistActivities = async (playlistId) => {
+    const { rows } = await this.pool.query(
+      `SELECT u.username, s.title, a.action, a.time 
+      FROM activities a
+      JOIN songs s ON s.id=a."songId"
+      JOIN users u ON u.id=a."userId"
+      WHERE a."playlistId"=$1`,
+      [playlistId]
+    )
+
+    if (rows.length === 0) throw new ClientError('there are no activities yet for this playlist', ERROR.NOT_FOUND)
+
+    return rows
   }
 
   verifyOwner = async ({ owner, playlistId }) => {
@@ -119,7 +146,7 @@ module.exports = class PlaylistService extends Service {
         err.name === ERROR.NOT_FOUND ||
         (method === 'delete' && (
           path.startsWith('/collaborations') ||
-          !path.endsWith('/songs')
+          !(/^\/playlists\/([^/]+)\/songs$/.test(path))
         ))
       ) throw err
 

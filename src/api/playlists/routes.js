@@ -48,6 +48,14 @@ const routes = (handler) => [
     options: {
       auth: JWT_STRATEGY_NAME
     }
+  },
+  {
+    method: 'GET',
+    path: '/playlists/{id}/activities',
+    handler: handler.getPlaylistActivitiesHandler,
+    options: {
+      auth: JWT_STRATEGY_NAME
+    }
   }
 ]
 
