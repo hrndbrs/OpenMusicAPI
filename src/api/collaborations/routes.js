@@ -1,12 +1,12 @@
-const { JWT_STRATEGY_NAME } = require('../../lib/constants')
+const Constant = require('../../lib/constants')
 
-module.exports = (handler) => ([
+module.exports = (handler) => [
   {
     method: 'POST',
     path: '/collaborations',
     handler: handler.postCollaborationHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   },
   {
@@ -14,7 +14,7 @@ module.exports = (handler) => ([
     path: '/collaborations',
     handler: handler.deleteCollaborationHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   }
-])
+]

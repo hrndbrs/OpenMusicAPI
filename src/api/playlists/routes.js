@@ -1,12 +1,12 @@
-const { JWT_STRATEGY_NAME } = require('../../lib/constants')
+const Constant = require('../../lib/constants')
 
-const routes = (handler) => [
+module.exports = (handler) => [
   {
     method: 'POST',
     path: '/playlists',
     handler: handler.postPlaylistHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   },
   {
@@ -14,7 +14,7 @@ const routes = (handler) => [
     path: '/playlists',
     handler: handler.getPlaylistsHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   },
   {
@@ -22,7 +22,7 @@ const routes = (handler) => [
     path: '/playlists/{id}',
     handler: handler.deletePlaylistHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   },
   {
@@ -30,7 +30,7 @@ const routes = (handler) => [
     path: '/playlists/{id}/songs',
     handler: handler.postPlaylistSongHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   },
   {
@@ -38,7 +38,7 @@ const routes = (handler) => [
     path: '/playlists/{id}/songs',
     handler: handler.getPlaylistSongsHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   },
   {
@@ -46,7 +46,7 @@ const routes = (handler) => [
     path: '/playlists/{id}/songs',
     handler: handler.deletePlaylistSongHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   },
   {
@@ -54,9 +54,7 @@ const routes = (handler) => [
     path: '/playlists/{id}/activities',
     handler: handler.getPlaylistActivitiesHandler,
     options: {
-      auth: JWT_STRATEGY_NAME
+      auth: Constant.JWT_STRATEGY_NAME
     }
   }
 ]
-
-module.exports = routes

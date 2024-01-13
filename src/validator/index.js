@@ -11,6 +11,7 @@ const {
   playlistSongPayloadSchema
 } = require('./playlists/schema')
 const collaborationPayloadSchema = require('./collaborations/schema')
+const exportPayloadSchema = require('./exports/schema')
 
 module.exports = {
   checkError (error) {
@@ -48,6 +49,10 @@ module.exports = {
   },
   validateCollaborationPayload (payload) {
     const { error } = collaborationPayloadSchema.validate(payload)
+    this.checkError(error)
+  },
+  validateExportPayload (payload) {
+    const { error } = exportPayloadSchema.validate(payload)
     this.checkError(error)
   }
 }
