@@ -1,4 +1,5 @@
 require('dotenv').config()
+const path = require('path')
 
 const Hapi = require('@hapi/hapi')
 const jwt = require('@hapi/jwt')
@@ -144,6 +145,16 @@ const init = async () => {
       return res
     }
     return h.continue
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/upload/{param*}',
+    handler: {
+      directory: {
+        path: path.resolve(__dirname, 'upload')
+      }
+    }
   })
 
   await server.start()

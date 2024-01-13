@@ -5,4 +5,8 @@ const albumPayloadSchema = joi.object({
   year: joi.number().required()
 })
 
-module.exports = albumPayloadSchema
+const imageHeadersSchema = joi.object({
+  'content-type': joi.string().valid('image/apng', 'image/avif', 'image/gif', 'image/jpeg', 'image/png', 'image/webp', 'image/svg+xml').required()
+}).unknown()
+
+module.exports = { albumPayloadSchema, imageHeadersSchema }

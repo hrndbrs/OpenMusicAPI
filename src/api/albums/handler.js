@@ -56,4 +56,19 @@ module.exports = class AlbumsRouteHandler {
     res.code(200)
     return res
   }
+
+  postAlbumCoverHandler = async (req, h) => {
+    const { cover } = req.payload
+    const { id } = req.params
+    this._validator.validateImageHeaders(cover.hapi.headers)
+    const filename = await this._service.writeFile(cover)
+    await this._service.uploadAlbumCover(id, filename)
+
+    const res = h.response({
+      status: 'success',
+      message: 'successfully uploaded album cover'
+    })
+    res.code(201)
+    return res
+  }
 }

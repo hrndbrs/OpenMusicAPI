@@ -1,5 +1,8 @@
 const { ClientError, ERROR } = require('../lib/error')
-const albumPayloadSchema = require('./albums/schema')
+const {
+  albumPayloadSchema,
+  imageHeadersSchema
+} = require('./albums/schema')
 const songPayloadSchema = require('./songs/schema')
 const {
   newUserPayloadSchema,
@@ -21,6 +24,10 @@ module.exports = {
   },
   validateAlbumPayload (payload) {
     const { error } = albumPayloadSchema.validate(payload)
+    this.checkError(error)
+  },
+  validateImageHeaders (payload) {
+    const { error } = imageHeadersSchema.validate(payload)
     this.checkError(error)
   },
   validateSongPayload (payload) {
