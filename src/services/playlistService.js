@@ -1,6 +1,6 @@
+const { nanoid } = require('nanoid')
 const Service = require('./service')
 const { ClientError, ERROR } = require('../lib/error')
-const { nanoid } = require('nanoid')
 
 module.exports = class PlaylistService extends Service {
   constructor (collaborationService) {
@@ -146,6 +146,7 @@ module.exports = class PlaylistService extends Service {
         err.name === ERROR.NOT_FOUND ||
         (method === 'delete' && (
           path.startsWith('/collaborations') ||
+          path.startsWith('/export/playlists') ||
           !(/^\/playlists\/([^/]+)\/songs$/.test(path))
         ))
       ) throw err

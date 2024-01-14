@@ -1,7 +1,7 @@
+const { nanoid } = require('nanoid')
 const Service = require('./service')
 const { ClientError, ERROR } = require('../lib/error')
 const { hashPassword, verifyPassword } = require('../lib/bcrypt')
-const { nanoid } = require('nanoid')
 
 module.exports = class UserService extends Service {
   createNewUser = async ({ username, password, fullname }) => {

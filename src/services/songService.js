@@ -1,6 +1,6 @@
-const { ClientError, ERROR } = require('../lib/error')
-const Service = require('./service')
 const { nanoid } = require('nanoid')
+const Service = require('./service')
+const { ClientError, ERROR } = require('../lib/error')
 
 module.exports = class SongService extends Service {
   addNewSong = async ({ title, year, genre, performer, duration, albumId }) => {

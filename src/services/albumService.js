@@ -1,22 +1,22 @@
-const path = require('path')
-const fs = require('fs')
+const { nanoid } = require('nanoid')
+// const path = require('path')
+// const fs = require('fs')
 const Service = require('./service')
 const { ClientError, ERROR } = require('../lib/error')
-const { nanoid } = require('nanoid')
 
 module.exports = class AlbumService extends Service {
-  constructor () {
-    super()
-    this._folder = this.createFolder()
-  }
+  // constructor () {
+  //   super()
+  //   this._folder = this.createFolder()
+  // }
 
-  createFolder = () => {
-    const directory = path.resolve(__dirname, '../upload/coverAlbums')
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory, { recursive: true })
-    }
-    return directory
-  }
+  // createFolder = () => {
+  //   const directory = path.resolve(__dirname, '../upload/coverAlbums')
+  //   if (!fs.existsSync(directory)) {
+  //     fs.mkdirSync(directory, { recursive: true })
+  //   }
+  //   return directory
+  // }
 
   addNewAlbum = async ({ name, year }) => {
     const id = 'album-' + nanoid(16)
@@ -83,17 +83,17 @@ module.exports = class AlbumService extends Service {
     return rows[0]
   }
 
-  writeFile = (image) => {
-    const filename = +new Date() + image.hapi.filename
-    const path = `${this._folder}/${filename}`
-    const fileStream = fs.createWriteStream(path)
+  // writeFile = (image) => {
+  //   const filename = +new Date() + image.hapi.filename
+  //   const path = `${this._folder}/${filename}`
+  //   const fileStream = fs.createWriteStream(path)
 
-    return new Promise((resolve, reject) => {
-      fileStream.on('error', (err) => reject(err))
-      image.pipe(fileStream)
-      image.on('end', () => resolve(filename))
-    })
-  }
+  //   return new Promise((resolve, reject) => {
+  //     fileStream.on('error', (err) => reject(err))
+  //     image.pipe(fileStream)
+  //     image.on('end', () => resolve(filename))
+  //   })
+  // }
 
   uploadAlbumCover = async (albumId, filename) => {
     const fileUrl = `${process.env.HOST}:${process.env.PORT}/upload/coverAlbums/${filename}`
@@ -108,5 +108,49 @@ module.exports = class AlbumService extends Service {
     if (rows.length === 0) throw new ClientError('album not found', ERROR.NOT_FOUND)
 
     return rows[0].coverUrl
+  }
+
+  getAlbumLikesCount = async (albumId) => {
+    const { rowCount } = await this.pool.query(
+      `SELECT id FROM likes
+      WHERE "albumId"=$1`,
+      [albumId]
+    )
+
+    return rowCount
+  }
+
+  likeAlbum = async (userId, albumId) => {
+    const { rows } = await this.pool.query(
+      `INSERT INTO likes ("userId", "albumId")
+      VALUES ($1, $2)
+      RETURNING id`,
+      [userId, albumId]
+    )
+
+    return rows[0].id
+  }
+
+  removeLikefromAlbum = async (userId, albumId) => {
+    const { rows } = await this.pool.query(
+      `DELETE FROM likes
+      WHERE "userId"=$1 AND "albumId"=$2
+      RETURNING id`,
+      [userId, albumId]
+    )
+
+    if (rows.length === 0) throw new ClientError('likes not found', ERROR.NOT_FOUND)
+
+    return rows[0].id
+  }
+
+  verifyLike = async (userId, albumId) => {
+    const { rows } = await this.pool.query(
+      `SELECT id from likes
+      WHERE "userId"=$1 AND "albumId"=$2`,
+      [userId, albumId]
+    )
+
+    return rows.length > 0
   }
 }

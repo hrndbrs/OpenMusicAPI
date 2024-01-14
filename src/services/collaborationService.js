@@ -1,6 +1,6 @@
-const { ClientError, ERROR } = require('../lib/error')
 const { nanoid } = require('nanoid')
 const Service = require('./service')
+const { ClientError, ERROR } = require('../lib/error')
 
 module.exports = class CollaborationService extends Service {
   verifyCollaborator = async (collaboratorId, playlistId) => {

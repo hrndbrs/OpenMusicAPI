@@ -1,3 +1,5 @@
+const Constant = require('../../lib/constants')
+
 module.exports = (handler) => [
   {
     method: 'POST',
@@ -30,6 +32,28 @@ module.exports = (handler) => [
         output: 'stream',
         maxBytes: 512000
       }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/albums/{id}/likes',
+    handler: handler.getLikesHandler
+  },
+  {
+    method: 'POST',
+    path: '/albums/{id}/likes',
+    handler: handler.postLikesHandler,
+    options: {
+      auth: Constant.JWT_STRATEGY_NAME
+    }
+
+  },
+  {
+    method: 'DELETE',
+    path: '/albums/{id}/likes',
+    handler: handler.deleteLikesHandler,
+    options: {
+      auth: Constant.JWT_STRATEGY_NAME
     }
   }
 ]

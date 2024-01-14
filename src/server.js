@@ -1,17 +1,8 @@
 require('dotenv').config()
-const path = require('path')
 
 const Hapi = require('@hapi/hapi')
 const jwt = require('@hapi/jwt')
 const inert = require('@hapi/inert')
-
-const users = require('./api/users')
-const albums = require('./api/albums')
-const songs = require('./api/songs')
-const auth = require('./api/auth')
-const playlists = require('./api/playlists')
-const collaborations = require('./api/collaborations')
-const fexports = require('./api/exports')
 
 const AlbumService = require('./services/albumService')
 const SongService = require('./services/songService')
@@ -19,7 +10,11 @@ const UserService = require('./services/userService')
 const PlaylistService = require('./services/playlistService')
 const CollaborationService = require('./services/collaborationService')
 const ProducerService = require('./services/producerService')
+const CacheService = require('./services/cacheService')
+const UploadService = require('./services/uploadService')
 
+const redisClient = require('./config/redis')
+const routePlugins = require('./api')
 const validator = require('./validator')
 
 const tokenManager = require('./lib/jwt')
@@ -27,12 +22,16 @@ const { ClientError } = require('./lib/error')
 const Constant = require('./lib/constants')
 
 const init = async () => {
+  await redisClient.connect()
+
+  const cacheService = new CacheService(redisClient)
   const albumService = new AlbumService()
   const songService = new SongService()
   const userService = new UserService()
   const collaborationService = new CollaborationService()
   const playlistService = new PlaylistService(collaborationService)
   const producerService = new ProducerService()
+  const uploadService = new UploadService()
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -62,61 +61,20 @@ const init = async () => {
     })
   })
 
-  await server.register([
-    {
-      plugin: albums,
-      options: {
-        service: albumService,
-        validator
-      }
+  await server.register(routePlugins({
+    services: {
+      albumService,
+      cacheService,
+      songService,
+      producerService,
+      userService,
+      playlistService,
+      collaborationService,
+      uploadService
     },
-    {
-      plugin: songs,
-      options: {
-        service: songService,
-        validator
-      }
-    },
-    {
-      plugin: users,
-      options: {
-        service: userService,
-        validator
-      }
-    },
-    {
-      plugin: auth,
-      options: {
-        service: userService,
-        validator,
-        tokenManager
-      }
-    },
-    {
-      plugin: playlists,
-      options: {
-        playlistService,
-        songService,
-        validator
-      }
-    },
-    {
-      plugin: collaborations,
-      options: {
-        playlistService,
-        collaborationService,
-        validator
-      }
-    },
-    {
-      plugin: fexports,
-      options: {
-        producerService,
-        playlistService,
-        validator
-      }
-    }
-  ])
+    validator,
+    tokenManager
+  }))
 
   server.ext('onPreResponse', (req, h) => {
     const { response } = req
@@ -145,16 +103,6 @@ const init = async () => {
       return res
     }
     return h.continue
-  })
-
-  server.route({
-    method: 'GET',
-    path: '/upload/{param*}',
-    handler: {
-      directory: {
-        path: path.resolve(__dirname, 'upload')
-      }
-    }
   })
 
   await server.start()
